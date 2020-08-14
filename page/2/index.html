@@ -23,37 +23,28 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false};
   </script>
 
-  <meta name="description" content="Gnet github 官网  网络模型本文只讨论基于事件驱动设计的Linux epoll模型。 主从Reactor模型模型图 逻辑图 MainReactor启动代码分析（reactor_liunx.go、acceptor_unix.go、epoll.go）12345678910111213141516171819202122232425262728293031323334func (svr *s">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Gnet-源码分析">
-<meta property="og:url" content="http://yoursite.com/2020/03/14/Gnet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="技术笔记">
+<meta property="og:url" content="http://yoursite.com/page/2/index.html">
 <meta property="og:site_name" content="技术笔记">
-<meta property="og:description" content="Gnet github 官网  网络模型本文只讨论基于事件驱动设计的Linux epoll模型。 主从Reactor模型模型图 逻辑图 MainReactor启动代码分析（reactor_liunx.go、acceptor_unix.go、epoll.go）12345678910111213141516171819202122232425262728293031323334func (svr *s">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://yoursite.com/2020/03/14/Gnet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%9E%8B%E5%9B%BE.png">
-<meta property="og:image" content="http://yoursite.com/2020/03/14/Gnet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%9E%8B%E9%80%BB%E8%BE%91%E5%9B%BE.png">
-<meta property="og:image" content="http://yoursite.com/2020/03/14/Gnet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/%E5%A4%9A%E6%A0%B8%E6%A8%A1%E5%9E%8B%E5%9B%BE.png">
-<meta property="og:image" content="http://yoursite.com/2020/03/14/Gnet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/RingBuffer.png">
-<meta property="article:published_time" content="2020-03-14T06:00:00.000Z">
-<meta property="article:modified_time" content="2020-08-14T07:40:21.992Z">
 <meta property="article:author" content="Blue Silence">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://yoursite.com/2020/03/14/Gnet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%9E%8B%E5%9B%BE.png">
 
-<link rel="canonical" href="http://yoursite.com/2020/03/14/Gnet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+<link rel="canonical" href="http://yoursite.com/page/2/">
 
 
 <script class="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : false,
-    isPost : true,
+    isHome : true,
+    isPost : false,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>Gnet-源码分析 | 技术笔记</title>
+  <title>技术笔记</title>
   
 
 
@@ -164,7 +155,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+    <div class="sidebar-inner sidebar-overview-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -176,7 +167,6 @@
 
       <!--noindex-->
       <section class="post-toc-wrap sidebar-panel">
-          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Gnet"><span class="nav-number">1.</span> <span class="nav-text">Gnet</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">网络模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E4%BB%8EReactor%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.1.</span> <span class="nav-text">主从Reactor模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E5%9B%BE"><span class="nav-number">2.1.1.</span> <span class="nav-text">模型图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E5%9B%BE"><span class="nav-number">2.1.2.</span> <span class="nav-text">逻辑图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MainReactor%E5%90%AF%E5%8A%A8%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88reactor-liunx-go%E3%80%81acceptor-unix-go%E3%80%81epoll-go%EF%BC%89"><span class="nav-number">2.1.3.</span> <span class="nav-text">MainReactor启动代码分析（reactor_liunx.go、acceptor_unix.go、epoll.go）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MainReactor-Polling%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88epoll-go%EF%BC%89"><span class="nav-number">2.1.4.</span> <span class="nav-text">MainReactor Polling代码分析（epoll.go）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SubReactor-Polling%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-epoll-go"><span class="nav-number">2.1.5.</span> <span class="nav-text">SubReactor Polling代码分析(epoll.go)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E6%A0%B8EventLoop%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.2.</span> <span class="nav-text">多核EventLoop模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E5%9B%BE-1"><span class="nav-number">2.2.1.</span> <span class="nav-text">模型图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E6%A0%B8EventLoop%E6%A8%A1%E5%9E%8B%E4%B8%8E%E4%B8%BB%E4%BB%8EReactor%E6%A8%A1%E5%9E%8B%E7%9A%84%E4%B8%8D%E5%90%8C"><span class="nav-number">2.2.2.</span> <span class="nav-text">多核EventLoop模型与主从Reactor模型的不同</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RingBuffer"><span class="nav-number">3.</span> <span class="nav-text">RingBuffer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%BB%E5%86%99%E4%BD%8D%E7%BD%AE-r-w-%E7%9A%84%E5%9B%9B%E7%A7%8D%E6%83%85%E5%86%B5"><span class="nav-number">3.0.1.</span> <span class="nav-text">读写位置(r,w)的四种情况</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
       </section>
       <!--/noindex-->
 
@@ -225,10 +215,9 @@
       <div class="main-inner">
         
 
-        <div class="content post posts-expand">
+        <div class="content index posts-expand">
           
-
-    
+      
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
@@ -246,9 +235,10 @@
 
     
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          Gnet-源码分析
-        </h1>
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/14/Gnet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">Gnet-源码分析</a>
+        </h2>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -285,7 +275,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="Gnet"><a href="#Gnet" class="headerlink" title="Gnet"></a>Gnet</h2><ul>
+          <h2 id="Gnet"><a href="#Gnet" class="headerlink" title="Gnet"></a>Gnet</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/panjf2000/gnet">github</a></li>
 <li><a target="_blank" rel="noopener" href="https://gnet.host/blog/presenting-gnet-cn/">官网</a></li>
 </ul>
@@ -319,31 +309,25 @@
 <li><a target="_blank" rel="noopener" href="https://taohuawu.club/go-event-loop-networking-library-gnet">https://taohuawu.club/go-event-loop-networking-library-gnet</a></li>
 </ul>
 
+      
     </div>
 
     
     
     
-
       <footer class="post-footer">
-
-        
-
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item"></div>
-      <div class="post-nav-item">
-    <a href="/2020/08/14/%E8%AE%B0%E4%BA%8B%E6%9C%AC/" rel="next" title="">
-       <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
+        <div class="post-eof"></div>
       </footer>
-    
   </article>
   
   
   
+
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  </nav>
 
 
 
