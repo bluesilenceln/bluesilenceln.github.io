@@ -1249,7 +1249,7 @@ pre code {
 }
 .site-title {
   font-family: Lato, "PingFang SC", "Microsoft YaHei", sans-serif;
-  font-size: 2em;
+  font-size: 3em;
   font-weight: normal;
   margin: 0;
 }
@@ -2681,7 +2681,7 @@ ul.breadcrumb li + li:last-child {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #d17;
+  background: #003461;
   display: inline-block;
   margin-right: 3px;
   transform: translateY(-2px);
