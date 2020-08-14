@@ -12,7 +12,7 @@
 
 <link rel="stylesheet" href="/css/main.css">
 
-
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
   
   <link rel="stylesheet" href="/lib/animate-css/animate.min.css">
@@ -23,13 +23,15 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false};
   </script>
 
-  <meta property="og:type" content="article">
+  <meta name="description" content="TCP建立连接的优化SYN_SENT net.ipv4.tcp_syn_retries &#x3D; 6  主动建立连接时，发SYN的重试次数   net.ipv4.ip_local_port_range &#x3D; 32768   60999  建立连接时的本地端口可用范围">
+<meta property="og:type" content="article">
 <meta property="og:title" content="Nginx-网络优化">
 <meta property="og:url" content="http://yoursite.com/2020/08/14/Nginx-%E7%BD%91%E7%BB%9C%E4%BC%98%E5%8C%96/index.html">
-<meta property="og:site_name" content="技术笔记">
+<meta property="og:site_name" content="Blue Silence Blog">
+<meta property="og:description" content="TCP建立连接的优化SYN_SENT net.ipv4.tcp_syn_retries &#x3D; 6  主动建立连接时，发SYN的重试次数   net.ipv4.ip_local_port_range &#x3D; 32768   60999  建立连接时的本地端口可用范围">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-08-14T06:59:21.000Z">
-<meta property="article:modified_time" content="2020-08-14T07:05:50.809Z">
+<meta property="article:modified_time" content="2020-08-14T16:47:41.247Z">
 <meta property="article:author" content="Blue Silence">
 <meta name="twitter:card" content="summary">
 
@@ -46,7 +48,7 @@
   };
 </script>
 
-  <title>Nginx-网络优化 | 技术笔记</title>
+  <title>Nginx-网络优化 | Blue Silence Blog</title>
   
 
 
@@ -110,7 +112,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">技术笔记</h1>
+      <h1 class="site-title">Blue Silence Blog</h1>
       <i class="logo-line"></i>
     </a>
   </div>
@@ -157,7 +159,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -169,6 +171,7 @@
 
       <!--noindex-->
       <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5%E7%9A%84%E4%BC%98%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">TCP建立连接的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#SYN-SENT"><span class="nav-number">1.1.</span> <span class="nav-text">SYN_SENT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SYN-RCVD"><span class="nav-number">1.2.</span> <span class="nav-text">SYN_RCVD</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ACCPET%E9%98%9F%E5%88%97"><span class="nav-number">1.3.</span> <span class="nav-text">ACCPET队列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SYN%E6%94%BB%E5%87%BB"><span class="nav-number">1.4.</span> <span class="nav-text">SYN攻击</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%85%A8%E5%B1%80"><span class="nav-number">1.5.</span> <span class="nav-text">操作系统全局</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%99%90%E5%88%B6%E7%94%A8%E6%88%B7"><span class="nav-number">1.6.</span> <span class="nav-text">限制用户</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%99%90%E5%88%B6%E8%BF%9B%E7%A8%8B"><span class="nav-number">1.7.</span> <span class="nav-text">限制进程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TCP-Fast-Open"><span class="nav-number">1.8.</span> <span class="nav-text">TCP Fast Open</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="nav-number">2.</span> <span class="nav-text">滑动窗口与缓冲区</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Nginx%E7%9A%84%E8%B6%85%E6%97%B6%E6%8C%87%E4%BB%A4%E4%B8%8E%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3"><span class="nav-number">2.1.</span> <span class="nav-text">Nginx的超时指令与滑动窗口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%A2%E5%8C%85%E9%87%8D%E4%BC%A0"><span class="nav-number">2.2.</span> <span class="nav-text">丢包重传</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TCP%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="nav-number">2.3.</span> <span class="nav-text">TCP缓冲区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%83%E6%95%B4%E6%8E%A5%E6%94%B6%E7%AA%97%E5%8F%A3%E4%B8%8E%E5%BA%94%E7%94%A8%E7%BC%93%E5%AD%98"><span class="nav-number">2.4.</span> <span class="nav-text">调整接收窗口与应用缓存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E5%A4%A7%E6%8E%A5%E6%94%B6%E7%AA%97%E5%8F%A3"><span class="nav-number">2.5.</span> <span class="nav-text">最大接收窗口</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Nagle%E7%AE%97%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">Nagle算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#stream%E6%A8%A1%E5%9D%97"><span class="nav-number">3.1.</span> <span class="nav-text">stream模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Nginx%E9%81%BF%E5%85%8D%E5%8F%91%E9%80%81%E5%B0%8F%E6%8A%A5%E6%96%87"><span class="nav-number">3.2.</span> <span class="nav-text">Nginx避免发送小报文</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E9%80%89%E6%8B%A9"><span class="nav-number">3.3.</span> <span class="nav-text">场景选择</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CORK%E7%AE%97%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">CORK算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP-Keep-Alive"><span class="nav-number">5.</span> <span class="nav-text">TCP Keep-Alive</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.1.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux"><span class="nav-number">5.2.</span> <span class="nav-text">Linux</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Nginx"><span class="nav-number">5.3.</span> <span class="nav-text">Nginx</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP%E5%85%B3%E9%97%AD%E8%BF%9E%E6%8E%A5%E7%9A%84%E4%BC%98%E5%8C%96"><span class="nav-number">6.</span> <span class="nav-text">TCP关闭连接的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BB%E5%8A%A8%E5%85%B3%E9%97%AD%E8%BF%9E%E6%8E%A5%E7%AB%AF"><span class="nav-number">6.1.</span> <span class="nav-text">主动关闭连接端</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#FIN-WAIT1"><span class="nav-number">6.1.1.</span> <span class="nav-text">FIN_WAIT1</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#FIN-WAIT2"><span class="nav-number">6.1.2.</span> <span class="nav-text">FIN_WAIT2</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#TIME-WAIT"><span class="nav-number">6.1.3.</span> <span class="nav-text">TIME_WAIT</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#lingering-close"><span class="nav-number">6.2.</span> <span class="nav-text">lingering_close</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%BB%B6%E8%BF%9F%E5%85%B3%E9%97%AD%E7%9A%84%E6%84%8F%E4%B9%89"><span class="nav-number">6.2.1.</span> <span class="nav-text">延迟关闭的意义</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%8C%87%E4%BB%A4"><span class="nav-number">6.2.2.</span> <span class="nav-text">配置指令</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BB%A5RST%E4%BB%A3%E6%9B%BF%E6%AD%A3%E5%B8%B8%E7%9A%84%E5%9B%9B%E6%AC%A1%E6%8F%A1%E6%89%8B%E5%85%B3%E9%97%AD%E8%BF%9E%E6%8E%A5"><span class="nav-number">6.2.3.</span> <span class="nav-text">以RST代替正常的四次握手关闭连接</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTPS%E7%9A%84%E4%BC%98%E5%8C%96"><span class="nav-number">7.</span> <span class="nav-text">HTTPS的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#TLS-SSL%E4%BC%98%E5%8C%96%E6%8F%A1%E6%89%8B%E6%80%A7%E8%83%BD"><span class="nav-number">7.1.</span> <span class="nav-text">TLS&#x2F;SSL优化握手性能</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BC%9A%E8%AF%9DSession"><span class="nav-number">7.1.1.</span> <span class="nav-text">会话Session</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BC%9A%E8%AF%9D%E7%A5%A8%E8%AF%81tickets"><span class="nav-number">7.1.2.</span> <span class="nav-text">会话票证tickets</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP%E7%9A%84%E4%BC%98%E5%8C%96"><span class="nav-number">8.</span> <span class="nav-text">HTTP的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%95%BF%E8%BF%9E%E6%8E%A5%E4%BC%98%E7%82%B9"><span class="nav-number">8.1.</span> <span class="nav-text">长连接优点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gzip%E5%8E%8B%E7%BC%A9"><span class="nav-number">8.2.</span> <span class="nav-text">gzip压缩</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8E%8B%E7%BC%A9%E4%B8%8A%E6%B8%B8%E7%9A%84%E5%93%8D%E5%BA%94"><span class="nav-number">8.3.</span> <span class="nav-text">压缩上游的响应</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%84%9F%E8%B0%A2"><span class="nav-number">9.</span> <span class="nav-text">感谢</span></a></li></ol></div>
       </section>
       <!--/noindex-->
 
@@ -181,7 +184,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -233,7 +236,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="技术笔记">
+      <meta itemprop="name" content="Blue Silence Blog">
     </span>
 
     
@@ -248,10 +251,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-08-14 14:59:21 / 修改时间：15:05:50" itemprop="dateCreated datePublished" datetime="2020-08-14T14:59:21+08:00">2020-08-14</time>
+              <time title="创建时间：2020-08-14 14:59:21" itemprop="dateCreated datePublished" datetime="2020-08-14T14:59:21+08:00">2020-08-14</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-08-15 00:47:41" itemprop="dateModified" datetime="2020-08-15T00:47:41+08:00">2020-08-15</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -271,7 +280,307 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        
+        <h3 id="TCP建立连接的优化"><a href="#TCP建立连接的优化" class="headerlink" title="TCP建立连接的优化"></a>TCP建立连接的优化</h3><h4 id="SYN-SENT"><a href="#SYN-SENT" class="headerlink" title="SYN_SENT"></a>SYN_SENT</h4><ul>
+<li><p><strong>net.ipv4.tcp_syn_retries</strong> = 6</p>
+<ul>
+<li>主动建立连接时，发SYN的重试次数</li>
+</ul>
+</li>
+<li><p><strong>net.ipv4.ip_local_port_range</strong> = 32768   60999</p>
+<ul>
+<li>建立连接时的本地端口可用范围</li>
+</ul>
+</li>
+</ul>
+<a id="more"></a>
+
+<h4 id="SYN-RCVD"><a href="#SYN-RCVD" class="headerlink" title="SYN_RCVD"></a>SYN_RCVD</h4><ul>
+<li><p><strong>net.ipv4.tcp_max_syn_backlog</strong></p>
+<ul>
+<li>SYN_RCVD状态连接的最大个数</li>
+<li>半连接队列</li>
+</ul>
+</li>
+<li><p><strong>net.ipv4.tcp_synack_retries</strong></p>
+<ul>
+<li>被动建立连接时，发SYN/ACK的重试次数</li>
+</ul>
+</li>
+</ul>
+<h4 id="ACCPET队列"><a href="#ACCPET队列" class="headerlink" title="ACCPET队列"></a>ACCPET队列</h4><ul>
+<li><strong>net.core.somaxconn</strong><ul>
+<li>系统最大backlog队列长度</li>
+</ul>
+</li>
+</ul>
+<h4 id="SYN攻击"><a href="#SYN攻击" class="headerlink" title="SYN攻击"></a>SYN攻击</h4><blockquote>
+<p>攻击者短时间伪造不同IP地址的SYN报文，快速占满backlog队列，使服务器不能为正常用户服务</p>
+</blockquote>
+<ul>
+<li><p><strong>net.core.netdev_max_backlog</strong></p>
+<ul>
+<li>接受自网卡、但未被内核协议栈处理的报文队列长度</li>
+</ul>
+</li>
+<li><p><strong>net.ipv4.tcp_max_syn_backlog</strong></p>
+<ul>
+<li>SYN_RCVD状态连接的最大个数</li>
+</ul>
+</li>
+<li><p><strong>net.ipv4.tcp_abort_on_overflow</strong></p>
+<ul>
+<li>超出处理能力时，对新来的SYN直接回包RST，丢弃连接</li>
+</ul>
+</li>
+<li><p><strong>net.ipv4.tcp_syncookies = 1</strong></p>
+<ul>
+<li>当SYN队列满后，新的SYN不进入队列，计算出cookie再以SYN+ACK中的序列号返回客户端，正常客户端发报文时，服务器根据报文中携带的cookie重新恢复连接</li>
+<li>由于cookie占用序列号空间，导致此时所有TCP可选功能失效，例如扩充窗口、时间戳等</li>
+</ul>
+</li>
+</ul>
+<h4 id="操作系统全局"><a href="#操作系统全局" class="headerlink" title="操作系统全局"></a>操作系统全局</h4><ul>
+<li><strong>fs.file-max</strong><ul>
+<li>操作系统可使用的最大句柄数</li>
+</ul>
+</li>
+<li><strong>fs.file-nr</strong><ul>
+<li>可以查看当前已分配、正使用、上限</li>
+</ul>
+</li>
+</ul>
+<h4 id="限制用户"><a href="#限制用户" class="headerlink" title="限制用户"></a>限制用户</h4><ul>
+<li><strong>/etc/security/limits.conf</strong><ul>
+<li>root soft nofile 65535</li>
+<li>root hard nofile 65535</li>
+</ul>
+</li>
+</ul>
+<h4 id="限制进程"><a href="#限制进程" class="headerlink" title="限制进程"></a>限制进程</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  worker_rlimit_nofile number;</span><br><span class="line">Default: -</span><br><span class="line">Context: main</span><br></pre></td></tr></table></figure>
+
+<h4 id="TCP-Fast-Open"><a href="#TCP-Fast-Open" class="headerlink" title="TCP Fast Open"></a>TCP Fast Open</h4><ul>
+<li><strong>net.ipv4.tcp_fastopen</strong><ul>
+<li>0：关闭</li>
+<li>1：作为客户端时可以使用TFO</li>
+<li>2：作为服务器时可以使用TFO</li>
+<li>3：无论作为客户端还是服务器，都可以使用TFO</li>
+</ul>
+</li>
+<li><strong>fastopen</strong>=number<ul>
+<li>为防止带数据的SYN攻击，限制最大长度，指定TFO连接队列的最大长度</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  listen address[:port] [fastopen=number];</span><br><span class="line">Default: listen *:80 | *.8000;</span><br><span class="line">Context: server</span><br></pre></td></tr></table></figure>
+
+<h3 id="滑动窗口与缓冲区"><a href="#滑动窗口与缓冲区" class="headerlink" title="滑动窗口与缓冲区"></a>滑动窗口与缓冲区</h3><h4 id="Nginx的超时指令与滑动窗口"><a href="#Nginx的超时指令与滑动窗口" class="headerlink" title="Nginx的超时指令与滑动窗口"></a>Nginx的超时指令与滑动窗口</h4><ul>
+<li><p>两次读操作间的超时</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  client_body_timeout time;</span><br><span class="line">Default: client_body_timeout 60s;</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>两次写操作间的超时</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  send_timeout time;</span><br><span class="line">Default: send_timeout 60s;</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>以上两者兼具</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  proxy_timeout time;</span><br><span class="line">Default: proxy_timeout 60s;</span><br><span class="line">Context: stream, server</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="丢包重传"><a href="#丢包重传" class="headerlink" title="丢包重传"></a>丢包重传</h4><ul>
+<li><strong>net.ipv4.tcp_retries1</strong> = 3<ul>
+<li>达到上限后，更新路由缓存</li>
+</ul>
+</li>
+<li><strong>net.ipv4.tcp_retries2</strong> = 15<ul>
+<li>达到上限后，关闭TCP连接</li>
+</ul>
+</li>
+<li>仅作近似理解，实际以超时时间为准，可能少于retries次数就认定达到上限</li>
+</ul>
+<h4 id="TCP缓冲区"><a href="#TCP缓冲区" class="headerlink" title="TCP缓冲区"></a>TCP缓冲区</h4><ul>
+<li><strong>net.ipv4.tcp_rmem</strong> = 4096     87380     6291456<ul>
+<li>读缓存最小值、默认值、最大值，单位字节，覆盖<strong>net.core_rmem_max</strong></li>
+</ul>
+</li>
+<li><strong>net.ipv4.tcp_wmem</strong> = 4096     16384    4194304<ul>
+<li>写缓存最小值、默认值、最大值，单位字节，覆盖<strong>net.core_wmem_max</strong></li>
+</ul>
+</li>
+<li><strong>net.ipv4_tcp_mem</strong> = 1541646       2055528      3083292<ul>
+<li>系统无内存压力、启动压力模式阈值、最大值、单位为页的数量</li>
+</ul>
+</li>
+<li><strong>net.ipv4.tcp_moderate_rcvbuf</strong> = 1<ul>
+<li>开启自动调整缓存模式</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  listen address[:port] [rcvbuf=size] [sndbuf=size];</span><br><span class="line">Default: listen *.80 | *:8000;</span><br><span class="line">Context: server</span><br></pre></td></tr></table></figure>
+
+<h4 id="调整接收窗口与应用缓存"><a href="#调整接收窗口与应用缓存" class="headerlink" title="调整接收窗口与应用缓存"></a>调整接收窗口与应用缓存</h4><ul>
+<li>net.ipv4.tcp_adv_win_scale = 1<ul>
+<li>应用缓存 = buffer / （2 ^ tcp_adv_win_scale）</li>
+</ul>
+</li>
+</ul>
+<h4 id="最大接收窗口"><a href="#最大接收窗口" class="headerlink" title="最大接收窗口"></a>最大接收窗口</h4><ul>
+<li>BDP = 带宽 * 时延</li>
+<li>吞吐量 = 窗口 / 时延</li>
+<li>最大接收窗口 = BDP（对于上游服务器可以估计）</li>
+</ul>
+<h3 id="Nagle算法"><a href="#Nagle算法" class="headerlink" title="Nagle算法"></a>Nagle算法</h3><blockquote>
+<p> 避免一个连接上同时存在大量小报文</p>
+</blockquote>
+<ul>
+<li><p>最多只存在一个小报文</p>
+</li>
+<li><p>合并多个小报文一起发送</p>
+</li>
+<li><p>提高带宽利用率</p>
+</li>
+<li><p>仅针对HTTP KeepAlive连接生效</p>
+</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  tcp_nodelay on | off;</span><br><span class="line">Default: tcp_nodelay on;</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+
+<h4 id="stream模块"><a href="#stream模块" class="headerlink" title="stream模块"></a>stream模块</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  tcp_nodelay on | off;</span><br><span class="line">Default: tcp_nodelay on;</span><br><span class="line">Context: stream,server</span><br></pre></td></tr></table></figure>
+
+<h4 id="Nginx避免发送小报文"><a href="#Nginx避免发送小报文" class="headerlink" title="Nginx避免发送小报文"></a>Nginx避免发送小报文</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  postone_output size;</span><br><span class="line">Default: postone_output 1460;</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+
+<h4 id="场景选择"><a href="#场景选择" class="headerlink" title="场景选择"></a>场景选择</h4><ul>
+<li>吞吐量优先：启用Nagle算法，tcp_nodelay off</li>
+<li>低时延优先：禁用Nagle算法，tcp_nodelay on</li>
+</ul>
+<h3 id="CORK算法"><a href="#CORK算法" class="headerlink" title="CORK算法"></a>CORK算法</h3><blockquote>
+<p> 仅针对sendfile on开启时有效，完全禁止小报文的发送，提升网络效率</p>
+</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  tcp_nopush on | off;</span><br><span class="line">Default: tcp_nopush off;</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+
+<h3 id="TCP-Keep-Alive"><a href="#TCP-Keep-Alive" class="headerlink" title="TCP Keep-Alive"></a>TCP Keep-Alive</h3><h4 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h4><ul>
+<li>检测实际断掉的连接</li>
+<li>用于维持与客户端间的防火墙有活跃网络包</li>
+</ul>
+<h4 id="Linux"><a href="#Linux" class="headerlink" title="Linux"></a>Linux</h4><ul>
+<li><strong>net.ipv4.tcp_keepalive_time</strong> = 7200<ul>
+<li>发送心跳周期</li>
+</ul>
+</li>
+<li><strong>net.ipv4.tcp_keepalive_intvl</strong> = 75<ul>
+<li>探测包发送间隔</li>
+</ul>
+</li>
+<li><strong>net.ipv4.tcp_keepalive_probes</strong> = 9<ul>
+<li>探测包重试次数</li>
+</ul>
+</li>
+</ul>
+<h4 id="Nginx"><a href="#Nginx" class="headerlink" title="Nginx"></a>Nginx</h4><ul>
+<li><strong>so_keepalive</strong> = 30m::10</li>
+<li><strong>keepidle,keepintvl,keepcnt</strong></li>
+</ul>
+<h3 id="TCP关闭连接的优化"><a href="#TCP关闭连接的优化" class="headerlink" title="TCP关闭连接的优化"></a>TCP关闭连接的优化</h3><h4 id="主动关闭连接端"><a href="#主动关闭连接端" class="headerlink" title="主动关闭连接端"></a>主动关闭连接端</h4><h5 id="FIN-WAIT1"><a href="#FIN-WAIT1" class="headerlink" title="FIN_WAIT1"></a>FIN_WAIT1</h5><ul>
+<li><strong>net.ipv4.tcp_orphan_retries</strong> = 0<ul>
+<li>发送FIN报文的重试次数，0相当于8</li>
+</ul>
+</li>
+</ul>
+<h5 id="FIN-WAIT2"><a href="#FIN-WAIT2" class="headerlink" title="FIN_WAIT2"></a>FIN_WAIT2</h5><ul>
+<li><strong>net.ipv4.tcp_fin_timeout</strong> = 60<ul>
+<li>保持在FIN_WAIT_2状态的时间</li>
+</ul>
+</li>
+</ul>
+<h5 id="TIME-WAIT"><a href="#TIME-WAIT" class="headerlink" title="TIME_WAIT"></a>TIME_WAIT</h5><ul>
+<li><strong>net.ipv4.tcp_tw_reuse</strong> = 1<ul>
+<li>开启后，作为客户端时新连接可以使用仍然处于TIME-WAIT状态的端口</li>
+<li>由于timestamp的存在，操作系统可以拒绝迟到的报文<ul>
+<li><strong>net.ipv4.tcp_timestamps</strong> = 1</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>net.ipv4.tcp_max_tw_buckets</strong> = 262144<ul>
+<li>time_wait状态连接的最大数量</li>
+<li>超出后直接关闭连接</li>
+</ul>
+</li>
+</ul>
+<h4 id="lingering-close"><a href="#lingering-close" class="headerlink" title="lingering_close"></a>lingering_close</h4><h5 id="延迟关闭的意义"><a href="#延迟关闭的意义" class="headerlink" title="延迟关闭的意义"></a>延迟关闭的意义</h5><ul>
+<li>当Nginx处理完成调用close关闭连接后，若接收缓冲区仍然受到客户端发来的内容，则服务器会向客户端发送RST包关闭连接，导致客户端由于收到RST而忽略了http response</li>
+</ul>
+<h5 id="配置指令"><a href="#配置指令" class="headerlink" title="配置指令"></a>配置指令</h5><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax: lingering_close off | on | always;</span><br><span class="line">Default: ligering_close on;</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>off</strong>：关闭功能</li>
+<li><strong>on</strong>：由Nginx判断，当用户请求未接收完（根据chunk或者Content-Length头部等）时启用功能，否则及时关闭连接</li>
+<li><strong>always</strong>：无条件启用功能</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax: lingering_time time;</span><br><span class="line">Default: lingering_time 30s;</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>当功能启用时，最长的读取用户请求内容的时长，达到后立刻关闭连接</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax: lingering_timeout time;</span><br><span class="line">Default: lingering_timeout 5s;</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>当功能启用时，检测客户端是否仍然请求内容到达，若超时后仍没有数据到达，则立刻关闭连接</li>
+</ul>
+<h5 id="以RST代替正常的四次握手关闭连接"><a href="#以RST代替正常的四次握手关闭连接" class="headerlink" title="以RST代替正常的四次握手关闭连接"></a>以RST代替正常的四次握手关闭连接</h5><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  reset_timedout_connection on | off;</span><br><span class="line">Default: reset_timedout_connection off;</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+
+<h3 id="HTTPS的优化"><a href="#HTTPS的优化" class="headerlink" title="HTTPS的优化"></a>HTTPS的优化</h3><h4 id="TLS-SSL优化握手性能"><a href="#TLS-SSL优化握手性能" class="headerlink" title="TLS/SSL优化握手性能"></a>TLS/SSL优化握手性能</h4><h5 id="会话Session"><a href="#会话Session" class="headerlink" title="会话Session"></a>会话Session</h5><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  ssl_session_cache off | none | [builtin[:size][shared:name:size]];</span><br><span class="line">Default: ssl_session_cache none;</span><br><span class="line">Context: http,server</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>off</strong>：不使用Session缓存，且Nginx在协议中明确告诉客户端Session缓存不被使用</li>
+<li><strong>none</strong>：不适用Session缓存</li>
+<li><strong>builtin</strong>：使用Openssl的Session缓存，由于在内存中使用，所以仅当同一客户端的两次连接都命中到同一个worker进程时，Session缓存才会生效</li>
+<li><strong>shared:name:size</strong>：定义共享内存，为所有worker进程提供Session缓存服务。1MB大约可用于4000个Session</li>
+</ul>
+<h5 id="会话票证tickets"><a href="#会话票证tickets" class="headerlink" title="会话票证tickets"></a>会话票证tickets</h5><blockquote>
+<p>Nginx将会话Session中的信息作为tickets加密发给客户端，当客户端下次发起TLS连接时带上tickets，由Nginx解密验证后复用会话Session。</p>
+<p>会话票证虽然更易在Nginx集群中使用，但破坏了TLS/SSL的安全机制，有安全风险，必须频发更换tickets秘钥。</p>
+</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Synatx:  ssl_session_tickets on | off;</span><br><span class="line">Default: ssl_session_tickets on;</span><br><span class="line">Context: http,server</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  ssl_session_ticket_key file;</span><br><span class="line">Default: -</span><br><span class="line">Context: http,server</span><br></pre></td></tr></table></figure>
+
+<h3 id="HTTP的优化"><a href="#HTTP的优化" class="headerlink" title="HTTP的优化"></a>HTTP的优化</h3><h4 id="长连接优点"><a href="#长连接优点" class="headerlink" title="长连接优点"></a>长连接优点</h4><ul>
+<li>减少握手次数</li>
+<li>通过减少并发连接数减少了服务器资源的消耗</li>
+<li>降低TCP拥塞控制的影响</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  keepalive_requests number;</span><br><span class="line">Default: keepalive_requests 100;</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  keepalive_requets number;</span><br><span class="line">Default: keepalive_requests 100;</span><br><span class="line">Context: upstream</span><br></pre></td></tr></table></figure>
+
+<h4 id="gzip压缩"><a href="#gzip压缩" class="headerlink" title="gzip压缩"></a>gzip压缩</h4><ul>
+<li>功能：通过实时压缩http包体，提升网络传输效率。</li>
+<li>模块ngx_http_gzip_module，通过–without-http_gzip_module禁用模块</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  gzip on | off;</span><br><span class="line">Default: gzip off;</span><br><span class="line">Context: http,server,location,if in location</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  gzip_types mime-type ...;</span><br><span class="line">Default: gzip_types text/html;</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  gzip_min_length length;</span><br><span class="line">Default: gzip_min_length 20;</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  gzip_disable regex ...;</span><br><span class="line">Default: -</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  gzip_http_version 1.0 | 1.1;</span><br><span class="line">Default: gzip_http_version 1.1;</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+
+<h4 id="压缩上游的响应"><a href="#压缩上游的响应" class="headerlink" title="压缩上游的响应"></a>压缩上游的响应</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  gzip_proxied off | expired | no-cache | no-store | private | no_last_modified | no_etag | auth | any ...;</span><br><span class="line">Default: gzip_proxied off;</span><br><span class="line">Context: http,server,location</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>off</strong>：不压缩来自上游的响应。</li>
+<li><strong>expired</strong>：如果上游响应中有Expires头部，且其值中的时间与系统时间比较后确定不会缓存，则压缩响应。</li>
+<li><strong>no-cache</strong>：如果上游中有”Cache-Control”头部，且其值中有”no-cache”值，则压缩响应。</li>
+<li><strong>private</strong>：如果上游中有”Cache-Control”头部，且其值中有”private”值，则压缩响应。</li>
+<li><strong>no_last_modified</strong>：如果上游中没有”Last-Modified”头部，则压缩响应。</li>
+<li><strong>no_etag</strong>：如果上游中没有”ETag”头部，则压缩响应。</li>
+<li><strong>auth</strong>：如果上游中有”Authorization”头部，则压缩响应。</li>
+<li><strong>any</strong>：压缩所有来自上游的响应。</li>
+</ul>
+<h3 id="感谢"><a href="#感谢" class="headerlink" title="感谢"></a>感谢</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://time.geekbang.org/course/intro/100020301?utm_campaign=guanwang&utm_source=baidu-ad&utm_medium=ppzq-pc&utm_content=title&utm_term=baidu-ad-ppzq-title">《Nginx核心知识100讲》</a></li>
+</ul>
+
     </div>
 
     
@@ -286,8 +595,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/08/14/%E8%AE%B0%E4%BA%8B%E6%9C%AC/" rel="prev" title="">
-      <i class="fa fa-chevron-left"></i> 
+    <a href="/2020/03/14/Gnet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="prev" title="Gnet-源码分析">
+      <i class="fa fa-chevron-left"></i> Gnet-源码分析
     </a></div>
       <div class="post-nav-item">
     <a href="/2020/08/14/Nginx-%E7%A3%81%E7%9B%98IO%E4%BC%98%E5%8C%96/" rel="next" title="Nginx-磁盘IO优化">
